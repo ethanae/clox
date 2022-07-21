@@ -1,8 +1,26 @@
-# flags
-CC = cc
+SRC_DIR=src
+INCL_DIR =include
+OBJ_DIR=obj
+BUILD_DIR=build
 
-# files
-OBJS=main.o chunk.o debug.o memory.o
+CC=cc
+CFLAGS=-I$(INCL_DIR)
 
-clox: $(OBJS)
-	$(CC) -o clox $(OBJS)
+_DEPS = chunk.h memory.h common.h debug.h
+DEPS = $(patsubst %,$(INCL_DIR)/%,$(_DEPS))
+
+_OBJ = main.o chunk.o memory.o debug.o
+OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
+
+$(OBJ_DIR)/%.o: src/%.c $(DEPS)
+	mkdir -p $(@D)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(BUILD_DIR)/clox: $(OBJ)
+	mkdir -p $(@D)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+.PHONY: clean
+
+clean:
+	rm -f $(OBJ_DIR)/*.o *~ core $(INCL_DIR)/*~ 

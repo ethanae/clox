@@ -5,9 +5,6 @@
 void disassembleChunk(Chunk *chunk, const char *name)
 {
     printf("== %s ==\n", name);
-    // printf("== chunk count %04d ==\n", chunk->count);
-    // printf("== chunk capacity %04d ==\n", chunk->capacity);
-    // printf("== chunk code %d ==\n", chunk->code);
     for (int offset = 0; offset < chunk->count;)
     {
         offset = disassembleInstruction(chunk, offset);
