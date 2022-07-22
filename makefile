@@ -6,10 +6,10 @@ BUILD_DIR=build
 CC=cc
 CFLAGS=-I$(INCL_DIR)
 
-_DEPS = chunk.h memory.h common.h debug.h
+_DEPS = chunk.h memory.h common.h debug.h value.h
 DEPS = $(patsubst %,$(INCL_DIR)/%,$(_DEPS))
 
-_OBJ = main.o chunk.o memory.o debug.o
+_OBJ = main.o chunk.o memory.o debug.o value.o
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
 $(OBJ_DIR)/%.o: src/%.c $(DEPS)
