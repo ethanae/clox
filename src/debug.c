@@ -19,7 +19,7 @@ static int simpleInstruction(const char *name, int offset)
 
 static int constantInstruction(const char *name, Chunk *chunk, int offset)
 {
-    uint8_t constantIndex = chunk->constants.values[offset + 1];
+    uint8_t constantIndex = chunk->code[offset + 1];
     printf("%-16s %4d '", name, constantIndex);
     printValue(chunk->constants.values[constantIndex]);
     printf("'\n");
