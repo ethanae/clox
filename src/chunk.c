@@ -4,7 +4,6 @@
 #include "chunk.h"
 #include "memory.h"
 #include "value.h"
-#include "debug.h"
 
 void initChunk(Chunk *chunk)
 {
@@ -16,7 +15,7 @@ void initChunk(Chunk *chunk)
     initValueArray(&chunk->constants);
 }
 
-static void mapLineNumber(Chunk* chunk, int line)
+static void mapLineNumber(Chunk *chunk, int line)
 {
     if (line == 0)
     {
@@ -30,17 +29,9 @@ static void mapLineNumber(Chunk* chunk, int line)
     }
 }
 
-void writeConstant(Chunk* chunk, Value value, int line)
+static void checkCapacity(Chunk *chunk, int upperBound)
 {
-
-}
-
-// ensure that subsequent calls to writeChunk do not skip line numbers
-// this will bloat the backing store for instruction-line mappings
-void writeChunk(Chunk *chunk, uint8_t byte, int line)
-{
-    // need to re-allocate
-    if (chunk->capacity < chunk->count + 1)
+    if (chunk->capacity < chunk->count + upperBound)
     {
         int oldCapacity = chunk->capacity;
         chunk->capacity = GROW_CAPACITY(oldCapacity);
@@ -51,6 +42,28 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line)
             chunk->capacity);
         chunk->lines = GROW_ARRAY(int, chunk->lines, oldCapacity, chunk->capacity);
     }
+}
+
+const UINT24_MAX = 16777215;
+void writeConstant(Chunk *chunk, Value value, int line)
+{
+    if (*(&chunk->constants.count) + 1 > UINT24_MAX) 
+    {
+        printf("Found too many constants. Max allowed constants: %d", UINT24_MAX);
+    } 
+    else 
+    {
+        uint24_t i = pack_24(chunk->constants.count);
+        writeValueArray(&chunk->constants, value);
+        writeChunk(chunk, i.d[0], line);
+        writeChunk(chunk, i.d[1], line);
+        writeChunk(chunk, i.d[2], line);
+    }
+}
+
+void writeChunk(Chunk *chunk, uint8_t byte, int line)
+{
+    checkCapacity(chunk, 1);
 
     chunk->code[chunk->count] = byte;
     mapLineNumber(chunk, line);
